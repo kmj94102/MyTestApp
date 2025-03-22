@@ -1,4 +1,4 @@
-package com.example.mytestapp.compose.ui.chapter1
+package com.example.mytestapp.compose.ui.chapter1.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
