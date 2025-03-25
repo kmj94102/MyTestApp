@@ -41,12 +41,13 @@ import com.example.mytestapp.compose.unit.nonRippleClickable
 fun CodeTextFiled(
     text: String,
     onChange: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .nonRippleClickable {
                 focusRequester.requestFocus()

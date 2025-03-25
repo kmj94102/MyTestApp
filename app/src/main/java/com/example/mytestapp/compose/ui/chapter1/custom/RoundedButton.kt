@@ -45,6 +45,7 @@ fun RoundedButton(
 fun CommonRoundedButton(
     modifier: Modifier = Modifier,
     text: String,
+    textColor: Color = Color.White,
     backgroundColor: Color = Chapter1MainColor,
     radius: Dp = 16.dp,
     onClick: () -> Unit
@@ -58,7 +59,7 @@ fun CommonRoundedButton(
                     fontFamily = pretendard,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
-                    color = Color.White,
+                    color = textColor,
                     lineHeight = 26.sp,
                     letterSpacing = -(0.025).em
                 )
