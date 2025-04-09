@@ -36,7 +36,10 @@ import com.example.mytestapp.compose.ui.chapter1.custom.CustomChip
 import com.example.mytestapp.compose.ui.chapter1.custom.RoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SmallSocialLoginButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SocialLoginButton
+import com.example.mytestapp.compose.ui.chapter1.login.LoginScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,22 +47,13 @@ class ComposeActivity : ComponentActivity() {
         setContent {
             MyTestAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    LoginScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
 }
 
 @Composable

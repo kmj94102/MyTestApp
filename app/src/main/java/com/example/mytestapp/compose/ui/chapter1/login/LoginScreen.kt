@@ -30,10 +30,12 @@ import com.example.mytestapp.compose.ui.chapter1.custom.SocialLoginButton
 import com.example.mytestapp.compose.unit.nonRippleClickable
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    modifier: Modifier = Modifier
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 32.dp)
+        modifier = modifier.padding(horizontal = 32.dp)
     ) {
         Chapter1GNB(
             title = "",
