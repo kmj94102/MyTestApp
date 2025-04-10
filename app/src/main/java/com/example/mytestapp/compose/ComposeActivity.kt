@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.example.mytestapp.R
 import com.example.mytestapp.compose.theme.Chapter1Background
 import com.example.mytestapp.compose.theme.Chapter1MainColor
@@ -36,7 +38,7 @@ import com.example.mytestapp.compose.ui.chapter1.custom.CustomChip
 import com.example.mytestapp.compose.ui.chapter1.custom.RoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SmallSocialLoginButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SocialLoginButton
-import com.example.mytestapp.compose.ui.chapter1.login.LoginScreen
+import com.example.mytestapp.navigation.ComposeNavigationHost
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -47,9 +49,14 @@ class ComposeActivity : ComponentActivity() {
         setContent {
             MyTestAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LoginScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .background(Chapter1Background)
+                            .padding(innerPadding)
+                    ) {
+                        val navHostController = rememberNavController()
+                        ComposeNavigationHost(navHostController)
+                    }
                 }
             }
         }

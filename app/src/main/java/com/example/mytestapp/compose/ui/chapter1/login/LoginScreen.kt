@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.mytestapp.R
 import com.example.mytestapp.compose.PreviewContainer
 import com.example.mytestapp.compose.theme.Chapter1MainColor
@@ -28,18 +29,21 @@ import com.example.mytestapp.compose.ui.chapter1.custom.Chapter1GNB
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SocialLoginButton
 import com.example.mytestapp.compose.unit.nonRippleClickable
+import com.example.mytestapp.navigation.Chapter1Screen
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier = Modifier
+    navHostController: NavHostController? = null,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(horizontal = 32.dp)
+        modifier = Modifier.padding(horizontal = 32.dp)
     ) {
         Chapter1GNB(
             title = "",
-            onBackClick = {},
+            onBackClick = {
+                navHostController?.popBackStack()
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -67,14 +71,18 @@ fun LoginScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 70.dp)
-                ) { }
+                ) {
+                    navHostController?.navigate(Chapter1Screen.EmailLogin)
+                }
             }
         } // LazyColumn
 
         Row(
             modifier = Modifier
                 .padding(bottom = 16.dp)
-                .nonRippleClickable { }
+                .nonRippleClickable {
+                    navHostController?.navigate(Chapter1Screen.SingUp)
+                }
         ) {
             Text(
                 "아직 회원이 아니신가요?",

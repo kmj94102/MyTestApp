@@ -14,10 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.mytestapp.R
 import com.example.mytestapp.compose.PreviewContainer
 import com.example.mytestapp.compose.theme.Chapter1Black
@@ -43,9 +41,13 @@ import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonTextField
 import com.example.mytestapp.compose.ui.chapter1.custom.SmallSocialLoginButton
 import com.example.mytestapp.compose.unit.nonRippleClickable
+import com.example.mytestapp.navigation.Chapter1Screen
 
 @Composable
-fun EmailLoginScreen() {
+fun EmailLoginScreen(
+    navController: NavController?= null,
+    viewModel: EmailLoginViewModel = hiltViewModel()
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -53,7 +55,7 @@ fun EmailLoginScreen() {
     ) {
         Chapter1GNB(
             title = "로그인",
-            onBackClick = {},
+            onBackClick = { navController?.popBackStack() },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -62,7 +64,17 @@ fun EmailLoginScreen() {
             modifier = Modifier.weight(1f).fillMaxWidth()
         ) {
             item {
-                LoginForm()
+                LoginForm(
+                    email = viewModel.state.value.email,
+                    onEmailChange = viewModel::onEmailChange,
+                    password = viewModel.state.value.password,
+                    onPasswordChange = viewModel::onPasswordChange,
+                    isPasswordVisible = viewModel.state.value.isPasswordVisible,
+                    onPasswordVisibilityChange = viewModel::onPasswordVisibilityChange,
+                    isChecked = viewModel.state.value.isChecked,
+                    onCheckedChange = viewModel::onCheckedChange,
+                    onLoginClick = viewModel::onLoginClick
+                )
             }
             item {
                 SocialLoginForm()
@@ -72,7 +84,7 @@ fun EmailLoginScreen() {
         Row(
             modifier = Modifier
                 .padding(bottom = 16.dp)
-                .nonRippleClickable { }
+                .nonRippleClickable { navController?.navigate(Chapter1Screen.SingUp) }
         ) {
             Text(
                 "아직 회원이 아니신가요?",
@@ -104,16 +116,21 @@ fun EmailLoginScreen() {
 }
 
 @Composable
-fun LoginForm() {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    var isChecked by remember { mutableStateOf(false) }
-
+fun LoginForm(
+    email: String,
+    onEmailChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    isPasswordVisible: Boolean,
+    onPasswordVisibilityChange: () -> Unit,
+    isChecked: Boolean,
+    onCheckedChange: () -> Unit,
+    onLoginClick: () -> Unit
+) {
     Column {
         CommonTextField(
             value = email,
-            onTextChange = { email = it },
+            onTextChange = onEmailChange,
             label = "이메일",
             hint = "이메일을 입력해 주세요",
             leadingIcon = {
@@ -129,7 +146,7 @@ fun LoginForm() {
 
         CommonTextField(
             value = password,
-            onTextChange = { password = it },
+            onTextChange = onPasswordChange,
             label = "비밀번호",
             hint = "비밀번호를 입력해 주세요",
             visualTransformation = if(isPasswordVisible) {
@@ -157,7 +174,7 @@ fun LoginForm() {
                     contentDescription = null,
                     modifier = Modifier
                         .size(24.dp)
-                        .nonRippleClickable { isPasswordVisible = !isPasswordVisible }
+                        .nonRippleClickable(onPasswordVisibilityChange)
                 )
             },
             modifier = Modifier.padding(top = 20.dp)
@@ -167,7 +184,7 @@ fun LoginForm() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(top = 20.dp)
         ) {
-            IDStorageCheckBox(isChecked) { isChecked = !isChecked }
+            IDStorageCheckBox(isChecked, onCheckedChange)
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
@@ -187,7 +204,7 @@ fun LoginForm() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 60.dp)
-        ) { }
+        ) { onLoginClick() }
     } // Column
 }
 

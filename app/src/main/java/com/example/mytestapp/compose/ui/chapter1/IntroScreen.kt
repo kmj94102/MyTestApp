@@ -1,6 +1,5 @@
 package com.example.mytestapp.compose.ui.chapter1
 
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -29,46 +29,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.example.mytestapp.R
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.example.mytestapp.compose.PreviewContainer
+import com.example.mytestapp.compose.data.chapter1.Intro
 import com.example.mytestapp.compose.theme.Chapter1MainColor
 import com.example.mytestapp.compose.theme.pretendard
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
-
-data class Intro(
-    val title: String,
-    val message: String,
-    @DrawableRes val imageRes: Int
-)
+import com.example.mytestapp.navigation.Chapter1Screen
 
 @Composable
-fun IntroScreen() {
-    val list = listOf(
-        Intro(
-            title = "채굴 어렵지 않아요",
-            message = "채굴이라 하면 너무 어렵 생각하는데\n누구나 쉽게 채굴이 가능합니다.",
-            imageRes = R.drawable.img_intro1
-        ),
-        Intro(
-            title = "투자로 인생을 바꾸세요",
-            message = "한 번뿐인 인생의 가상화폐 투자로\n또 다른 나를 찾아 세상을 넓혀보세요",
-            imageRes = R.drawable.img_intro2
-        ),
-        Intro(
-            title = "내 자산을 안전하게",
-            message = "남들에게 보이지 않고 도난당할 일 없는\n안전하게 자산을 지키세요",
-            imageRes = R.drawable.img_intro3
-        )
-    )
-    val state = rememberPagerState(initialPage = 0, pageCount = { list.size })
+fun IntroScreen(
+    controller: NavHostController?= null,
+    viewModel: IntroViewModel = hiltViewModel()
+) {
+    val state = rememberPagerState(initialPage = 0, pageCount = { viewModel.list.size })
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HorizontalPager(state, modifier = Modifier.weight(1f)) {
-            IntroItem(list[it])
+            IntroItem(viewModel.list[it])
         }
 
-        Indicator(state.currentPage, list.size)
+        Indicator(state.currentPage, viewModel.list.size)
 
         CommonRoundedButton(
             text = "시작하기",
@@ -76,7 +59,7 @@ fun IntroScreen() {
                 .padding(horizontal = 32.dp)
                 .padding(bottom = 16.dp)
         ) {
-
+            controller?.navigate(Chapter1Screen.Login)
         }
     }
 }
