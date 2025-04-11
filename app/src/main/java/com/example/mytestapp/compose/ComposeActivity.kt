@@ -38,7 +38,7 @@ import com.example.mytestapp.compose.ui.chapter1.custom.CustomChip
 import com.example.mytestapp.compose.ui.chapter1.custom.RoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SmallSocialLoginButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SocialLoginButton
-import com.example.mytestapp.navigation.ComposeNavigationHost
+import com.example.mytestapp.compose.navigation.ComposeNavigationHost
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

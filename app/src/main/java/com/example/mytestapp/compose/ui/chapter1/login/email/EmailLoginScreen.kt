@@ -14,10 +14,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.mytestapp.R
 import com.example.mytestapp.compose.PreviewContainer
@@ -41,13 +44,17 @@ import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonTextField
 import com.example.mytestapp.compose.ui.chapter1.custom.SmallSocialLoginButton
 import com.example.mytestapp.compose.unit.nonRippleClickable
-import com.example.mytestapp.navigation.Chapter1Screen
+import com.example.mytestapp.compose.navigation.Chapter1Screen
+import com.example.mytestapp.util.toast
 
 @Composable
 fun EmailLoginScreen(
     navController: NavController?= null,
     viewModel: EmailLoginViewModel = hiltViewModel()
 ) {
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -111,6 +118,21 @@ fun EmailLoginScreen(
                 ),
                 modifier = Modifier.padding(start = 6.dp)
             )
+        }
+    }
+
+    LaunchedEffect(uiState.value) {
+        when(uiState.value) {
+            is EmailLoginUiState.Error -> {
+                context.toast(
+                    (uiState.value as EmailLoginUiState.Error).message
+                )
+            }
+            is EmailLoginUiState.Success -> {
+                // todo: 이동 경로 수정 예정
+                navController?.navigate(Chapter1Screen.Login)
+            }
+            else -> {}
         }
     }
 }

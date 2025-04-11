@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -36,7 +35,7 @@ import com.example.mytestapp.compose.data.chapter1.Intro
 import com.example.mytestapp.compose.theme.Chapter1MainColor
 import com.example.mytestapp.compose.theme.pretendard
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
-import com.example.mytestapp.navigation.Chapter1Screen
+import com.example.mytestapp.compose.navigation.Chapter1Screen
 
 @Composable
 fun IntroScreen(

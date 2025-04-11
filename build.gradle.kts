@@ -6,4 +6,5 @@ plugins {
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
+    id("com.google.devtools.ksp") version "2.1.10-1.0.31" apply false
 }

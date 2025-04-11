@@ -5,16 +5,21 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mytestapp.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class EmailLoginViewModel @Inject constructor(
-
+    private val repository: UserRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<EmailLoginUiState>(EmailLoginUiState.Idle)
     val uiState: StateFlow<EmailLoginUiState> = _uiState.stateIn(
@@ -38,13 +43,28 @@ class EmailLoginViewModel @Inject constructor(
         _state.value = _state.value.copy(isPasswordVisible = !_state.value.isPasswordVisible)
     }
 
+    // todo: 아이디 저장 기능 구현
     fun onCheckedChange() {
         _state.value = _state.value.copy(isChecked = !_state.value.isChecked)
     }
 
     fun onLoginClick() {
-        _uiState.value = EmailLoginUiState.Loading
-        _uiState.value = EmailLoginUiState.Success
+        if(_uiState.value == EmailLoginUiState.Loading) {
+            return
+        }
+
+        repository
+            .login(_state.value.email, _state.value.password)
+            .onStart {
+                _uiState.value = EmailLoginUiState.Loading
+            }
+            .onEach {
+                _uiState.value = EmailLoginUiState.Success(it.uid)
+            }
+            .catch {
+                _uiState.value = EmailLoginUiState.Error(it.message ?: "알 수 없는 에러입니다.")
+            }
+            .launchIn(viewModelScope)
     }
 }
 
@@ -61,7 +81,9 @@ sealed interface EmailLoginUiState {
 
     data object Loading: EmailLoginUiState
 
-    data object Success: EmailLoginUiState
+    data class Success(
+        val uid: Int
+    ): EmailLoginUiState
 
     data class Error(
         val message: String

@@ -29,7 +29,7 @@ import com.example.mytestapp.compose.ui.chapter1.custom.Chapter1GNB
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SocialLoginButton
 import com.example.mytestapp.compose.unit.nonRippleClickable
-import com.example.mytestapp.navigation.Chapter1Screen
+import com.example.mytestapp.compose.navigation.Chapter1Screen
 
 @Composable
 fun LoginScreen(
