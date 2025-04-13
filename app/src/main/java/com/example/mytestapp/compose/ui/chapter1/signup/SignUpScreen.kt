@@ -10,13 +10,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -26,9 +25,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.mytestapp.R
 import com.example.mytestapp.compose.PreviewContainer
+import com.example.mytestapp.compose.navigation.Chapter1Screen
 import com.example.mytestapp.compose.theme.Chapter1MainColor
 import com.example.mytestapp.compose.theme.Chapter1TextGray
 import com.example.mytestapp.compose.theme.pretendard
@@ -37,18 +39,23 @@ import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonTextField
 import com.example.mytestapp.compose.ui.chapter1.custom.SmallSocialLoginButton
 import com.example.mytestapp.compose.unit.nonRippleClickable
+import com.example.mytestapp.util.toast
 
 @Composable
 fun SignUpScreen(
-    navHostController: NavHostController? = null
+    navHostController: NavHostController? = null,
+    viewModel: SinUpViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
     ) {
         Chapter1GNB(
             title = "가입하기",
-            onBackClick = {},
+            onBackClick = { navHostController?.popBackStack() },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -56,7 +63,19 @@ fun SignUpScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.weight(1f)
         ) {
-            item { SignUpForm() }
+            item {
+                SignUpForm(
+                    name = viewModel.state.value.name,
+                    email = viewModel.state.value.email,
+                    password = viewModel.state.value.password,
+                    isPasswordVisible = viewModel.state.value.isPasswordVisible,
+                    onNameChange = viewModel::onNameChange,
+                    onEmailChange = viewModel::onEmailChange,
+                    onPasswordChange = viewModel::onPasswordChange,
+                    onPasswordVisibilityChange = viewModel::onPasswordVisibilityChange,
+                    onSinUpClick = viewModel::onSinUp
+                )
+            }
 
             item { SocialSignUpButtons() }
         }
@@ -64,7 +83,7 @@ fun SignUpScreen(
         Row(
             modifier = Modifier
                 .padding(bottom = 16.dp)
-                .nonRippleClickable { }
+                .nonRippleClickable { navHostController?.popBackStack() }
         ) {
             Text(
                 "이미 계정이 있으신가요?",
@@ -93,19 +112,40 @@ fun SignUpScreen(
             )
         }
     }
+
+    LaunchedEffect(uiState) {
+        when(uiState) {
+            is SinUpUiState.Success -> {
+                navHostController?.navigate(
+                    Chapter1Screen.Interest(
+                        uid = (uiState as SinUpUiState.Success).uid
+                    )
+                )
+            }
+            is SinUpUiState.Error -> {
+                context.toast((uiState as SinUpUiState.Error).message)
+            }
+            else -> {}
+        }
+    }
 }
 
 @Composable
-fun SignUpForm() {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var isPasswordVisible by remember { mutableStateOf(false) }
-
+fun SignUpForm(
+    name: String = "",
+    email: String = "",
+    password: String = "",
+    isPasswordVisible: Boolean = false,
+    onNameChange: (String) -> Unit = {},
+    onEmailChange: (String) -> Unit = {},
+    onPasswordChange: (String) -> Unit = {},
+    onPasswordVisibilityChange: () -> Unit = {},
+    onSinUpClick: () -> Unit = {}
+) {
     Column {
         CommonTextField(
             value = name,
-            onTextChange = { name = it },
+            onTextChange = onNameChange,
             label = "이름",
             hint = "이름을 입력해 주세요",
             leadingIcon = {
@@ -121,7 +161,7 @@ fun SignUpForm() {
 
         CommonTextField(
             value = email,
-            onTextChange = { email = it },
+            onTextChange = onEmailChange,
             label = "이메일",
             hint = "이메일을 입력해 주세요",
             leadingIcon = {
@@ -137,7 +177,7 @@ fun SignUpForm() {
 
         CommonTextField(
             value = password,
-            onTextChange = { password = it },
+            onTextChange = onPasswordChange,
             visualTransformation = if(isPasswordVisible) {
                 PasswordVisualTransformation()
             } else {
@@ -165,7 +205,7 @@ fun SignUpForm() {
                     contentDescription = null,
                     modifier = Modifier
                         .size(24.dp)
-                        .nonRippleClickable { isPasswordVisible = !isPasswordVisible }
+                        .nonRippleClickable(onPasswordVisibilityChange)
                 )
             },
             modifier = Modifier.padding(top = 20.dp)
@@ -174,7 +214,7 @@ fun SignUpForm() {
         CommonRoundedButton(
             text = "회원가입",
             modifier = Modifier.fillMaxWidth().padding(top = 32.dp)
-        ) { }
+        ) { onSinUpClick() }
     }
 }
 

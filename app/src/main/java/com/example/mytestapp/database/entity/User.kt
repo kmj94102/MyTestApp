@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class User(
-    @PrimaryKey val uid: Int,
+    @PrimaryKey(autoGenerate = true)
+    val uid: Int = 0,
     val email: String,
     val password: String,
     val name: String,
@@ -15,4 +16,18 @@ data class User(
     val phoneNumber: String,
     val country: String,
     val gender: String,
-)
+) {
+    companion object {
+        fun newUser(email: String, password: String, name: String) = User(
+            email = email,
+            password = password,
+            name = name,
+            profileName = "",
+            isBiometricUsed = false,
+            interests = "",
+            phoneNumber = "",
+            country = "",
+            gender = ""
+        )
+    }
+}

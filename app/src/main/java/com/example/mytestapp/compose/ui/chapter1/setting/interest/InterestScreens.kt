@@ -11,18 +11,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.example.mytestapp.compose.PreviewContainer
+import com.example.mytestapp.compose.navigation.Chapter1Screen
 import com.example.mytestapp.compose.theme.Chapter1Black
 import com.example.mytestapp.compose.theme.Chapter1TextGray
 import com.example.mytestapp.compose.theme.pretendard
@@ -30,23 +33,22 @@ import com.example.mytestapp.compose.ui.chapter1.custom.Chapter1GNB
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.CustomChip
 import com.example.mytestapp.compose.unit.nonRippleClickable
+import com.example.mytestapp.util.toast
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun InterestScreen() {
-    val list by remember { mutableStateOf(listOf(
-        "가상화폐", "금리", "부동산", "투자", "10억", "부자 되는 방법", "제테크", "갭투자",
-        "타이밍", "비트코인", "리플", "이더리움", "주식투자", "계좌개설", "코인", "도지코인",
-        "안전거래", "대출", "ETF", "레버리지", "미국 나스닥", "펀드", "S&P500", "트론",
-        "에이다", "스텔라루멘", "이오스"
-    )) }
-    var selectList by remember { mutableStateOf(listOf<String>()) }
+fun InterestScreen(
+    navHostController: NavHostController? = null,
+    viewModel: InterestViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Column(modifier = Modifier.padding(horizontal = 32.dp)) {
         Chapter1GNB(
             title = "나의 관심사 선택",
             modifier = Modifier.fillMaxWidth(),
-            onBackClick = {}
+            onBackClick = { navHostController?.popBackStack() }
         )
 
         Text(
@@ -65,23 +67,18 @@ fun InterestScreen() {
         FlowRow (
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
-            modifier = Modifier.weight(1f).fillMaxWidth().padding(top = 30.dp)
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(top = 30.dp)
         ) {
-            list.forEach {
+            viewModel.state.value.list.forEach {
                 CustomChip(
                     text = it,
-                    isSelect = selectList.contains(it),
-                    count = selectList.indexOf(it) + 1,
+                    isSelect = viewModel.state.value.selectList.contains(it),
+                    count = viewModel.state.value.selectList.indexOf(it) + 1,
                     modifier = Modifier.nonRippleClickable {
-                        selectList = if (selectList.contains(it)) {
-                            selectList.filter { value -> value != it }
-                        } else {
-                            if(selectList.size < 7) {
-                                selectList + it
-                            } else {
-                                selectList
-                            }
-                        }
+                        viewModel.updateSelectList(it)
                     }
                 )
             }
@@ -92,11 +89,35 @@ fun InterestScreen() {
                 text = "다음에",
                 textColor = Chapter1TextGray,
                 backgroundColor = Chapter1Black,
-                modifier = Modifier.weight(1f)
-            ) { }
+                modifier = Modifier.weight(1f),
+                onClick = viewModel::onPass
+            )
             Spacer(modifier = Modifier.width(8.dp))
 
-            CommonRoundedButton(text = "선택완료", modifier = Modifier.weight(1f)) { }
+            CommonRoundedButton(
+                text = "선택완료",
+                modifier = Modifier.weight(1f),
+                onClick = viewModel::onSave
+            )
+        }
+    }
+
+    LaunchedEffect(uiState) {
+        when(uiState) {
+            is InterestUiState.Success -> {
+                navHostController?.navigate(
+                    Chapter1Screen.Profile((uiState as InterestUiState.Success).uid)
+                )
+            }
+            is InterestUiState.Pass -> {
+                navHostController?.navigate(
+                    Chapter1Screen.Profile((uiState as InterestUiState.Pass).uid)
+                )
+            }
+            is InterestUiState.Error -> {
+                context.toast((uiState as InterestUiState.Error).message)
+            }
+            else -> {}
         }
     }
 }

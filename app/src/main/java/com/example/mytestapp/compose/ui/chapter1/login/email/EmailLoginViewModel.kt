@@ -7,14 +7,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mytestapp.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,6 +66,12 @@ class EmailLoginViewModel @Inject constructor(
             }
             .catch {
                 _uiState.value = EmailLoginUiState.Error(it.message ?: "알 수 없는 에러입니다.")
+            }
+            .onCompletion {
+                viewModelScope.launch {
+                    delay(300)
+                    _uiState.value = EmailLoginUiState.Idle
+                }
             }
             .launchIn(viewModelScope)
     }

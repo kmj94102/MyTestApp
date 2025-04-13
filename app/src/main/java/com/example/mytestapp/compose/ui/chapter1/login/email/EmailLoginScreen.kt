@@ -129,8 +129,9 @@ fun EmailLoginScreen(
                 )
             }
             is EmailLoginUiState.Success -> {
-                // todo: 이동 경로 수정 예정
-                navController?.navigate(Chapter1Screen.Login)
+                navController?.navigate(Chapter1Screen.Interest(
+                    uid = (uiState.value as EmailLoginUiState.Success).uid
+                ))
             }
             else -> {}
         }

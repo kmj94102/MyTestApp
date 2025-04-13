@@ -6,6 +6,8 @@ import androidx.navigation.compose.composable
 import com.example.mytestapp.compose.ui.chapter1.IntroScreen
 import com.example.mytestapp.compose.ui.chapter1.login.LoginScreen
 import com.example.mytestapp.compose.ui.chapter1.login.email.EmailLoginScreen
+import com.example.mytestapp.compose.ui.chapter1.setting.interest.InterestScreen
+import com.example.mytestapp.compose.ui.chapter1.setting.profile.ProfileSettingScreen
 import com.example.mytestapp.compose.ui.chapter1.signup.SignUpScreen
 import kotlinx.serialization.Serializable
 
@@ -25,6 +27,14 @@ fun NavGraphBuilder.chapter1Graph(navHostController: NavHostController) {
     composable<Chapter1Screen.SingUp> {
         SignUpScreen(navHostController)
     }
+
+    composable<Chapter1Screen.Interest> {
+        InterestScreen(navHostController)
+    }
+
+    composable<Chapter1Screen.Profile> {
+        ProfileSettingScreen(navHostController)
+    }
 }
 
 sealed interface Chapter1Screen {
@@ -39,5 +49,15 @@ sealed interface Chapter1Screen {
 
     @Serializable
     data object SingUp: Chapter1Screen
+
+    @Serializable
+    data class Interest(
+        val uid: Int
+    ): Chapter1Screen
+
+    @Serializable
+    data class Profile(
+        val uid: Int
+    ): Chapter1Screen
 
 }

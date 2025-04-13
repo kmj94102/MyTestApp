@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.mytestapp.R
 import com.example.mytestapp.compose.PreviewContainer
 import com.example.mytestapp.compose.theme.Chapter1Background
@@ -52,7 +53,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileSettingScreen() {
+fun ProfileSettingScreen(
+    navHostController: NavHostController? = null
+) {
     var country by remember { mutableStateOf("한국") }
     var isSheetOpen by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -63,7 +66,9 @@ fun ProfileSettingScreen() {
         modifier = Modifier.padding(horizontal = 32.dp)
     ) {
         Chapter1GNB(
-            title = "프로필 설정", onBackClick = {}, modifier = Modifier.fillMaxWidth()
+            title = "프로필 설정",
+            onBackClick = { navHostController?.popBackStack() },
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(40.dp))
 
