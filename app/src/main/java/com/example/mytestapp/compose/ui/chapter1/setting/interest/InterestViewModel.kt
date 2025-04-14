@@ -43,7 +43,11 @@ class InterestViewModel @Inject constructor(
     private fun fetchInterest() {
         repository
             .fetchInterest(uid)
-            .onEach { _state.value = _state.value.copy(selectList = it.split(","))}
+            .onEach {
+                _state.value = _state.value.copy(
+                    selectList = it.split(",").filterNot { it.isBlank() }
+                )
+            }
             .catch { _uiState.value = InterestUiState.Error(it.message ?: "관심사 조회 실패") }
             .launchIn(viewModelScope)
     }
