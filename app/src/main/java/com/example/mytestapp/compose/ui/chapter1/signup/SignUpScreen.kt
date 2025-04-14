@@ -179,9 +179,9 @@ fun SignUpForm(
             value = password,
             onTextChange = onPasswordChange,
             visualTransformation = if(isPasswordVisible) {
-                PasswordVisualTransformation()
-            } else {
                 VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
             },
             label = "비밀번호",
             hint = "비밀번호를 입력해 주세요",
