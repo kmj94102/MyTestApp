@@ -22,6 +22,8 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -37,9 +40,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.mytestapp.R
 import com.example.mytestapp.compose.PreviewContainer
+import com.example.mytestapp.compose.data.chapter1.Country
+import com.example.mytestapp.compose.navigation.Chapter1Screen
 import com.example.mytestapp.compose.theme.Chapter1Background
 import com.example.mytestapp.compose.theme.Chapter1Black
 import com.example.mytestapp.compose.theme.Chapter1MainColor
@@ -49,14 +55,18 @@ import com.example.mytestapp.compose.ui.chapter1.custom.Chapter1GNB
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonTextField
 import com.example.mytestapp.compose.unit.nonRippleClickable
+import com.example.mytestapp.util.toast
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileSettingScreen(
-    navHostController: NavHostController? = null
+    navHostController: NavHostController? = null,
+    viewModel: ProfileSettingViewModel = hiltViewModel()
 ) {
-    var country by remember { mutableStateOf("한국") }
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
     var isSheetOpen by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -80,6 +90,12 @@ fun ProfileSettingScreen(
         ) {
             item {
                 ProfileSettingItems(
+                    state = viewModel.state.value,
+                    onNameChange = viewModel::onNameChange,
+                    onProfileNameChange = viewModel::onProfileNameChange,
+                    onEmailChange = viewModel::onEmailChange,
+                    onGenderChange = viewModel::onGenderChange,
+                    onPhoneNumberChange = viewModel::onPhoneNumberChange,
                     onCountryClick = { isSheetOpen = true }
                 )
             }
@@ -95,15 +111,25 @@ fun ProfileSettingScreen(
                 text = "다음에",
                 backgroundColor = Chapter1Black,
                 textColor = Chapter1TextGray,
-                modifier = Modifier.weight(1f)
-            ) { }
+                modifier = Modifier.weight(1f),
+                onClick = viewModel::onPass
+            )
 
             CommonRoundedButton(
                 text = "입력 완료",
-                backgroundColor = Chapter1Black,
-                textColor = Chapter1TextGray,
-                modifier = Modifier.weight(1f)
-            ) { }
+                backgroundColor = if (viewModel.state.value.isAllFilled()) {
+                    Chapter1MainColor
+                } else {
+                    Chapter1Black
+                },
+                textColor = if (viewModel.state.value.isAllFilled()) {
+                    Color.White
+                } else {
+                    Chapter1TextGray
+                },
+                modifier = Modifier.weight(1f),
+                onClick = viewModel::onSetting
+            )
         }
     }
 
@@ -116,10 +142,33 @@ fun ProfileSettingScreen(
                 isSheetOpen = false
             }
         },
-        value = country,
-        onValueChange = { country = it },
+        value = viewModel.state.value.country,
+        onValueChange = viewModel::onCountryChange,
         modifier = Modifier.fillMaxWidth()
     )
+
+    LaunchedEffect(uiState) {
+        when(uiState) {
+            is ProfileSettingUiState.Success -> {
+                navHostController?.navigate(
+                    Chapter1Screen.ProfileComplete(
+                        (uiState as ProfileSettingUiState.Success).uid
+                    )
+                )
+            }
+            is ProfileSettingUiState.Pass -> {
+                navHostController?.navigate(
+                    Chapter1Screen.ProfileComplete(
+                        (uiState as ProfileSettingUiState.Pass).uid
+                    )
+                )
+            }
+            is ProfileSettingUiState.Error -> {
+                context.toast((uiState as ProfileSettingUiState.Error).message)
+            }
+            else -> {}
+        }
+    }
 }
 
 @Composable
@@ -131,6 +180,7 @@ fun ProfileImage() {
                 .size(120.dp)
                 .background(Chapter1Black, CircleShape)
         ) {
+            // todo 이미지 선택 추가하기
             Image(
                 painter = painterResource(R.drawable.ic_user),
                 contentDescription = null,
@@ -157,35 +207,41 @@ fun ProfileImage() {
 
 @Composable
 fun ProfileSettingItems(
+    state: ProfileSettingState,
+    onNameChange: (String) -> Unit = {},
+    onProfileNameChange: (String) -> Unit = {},
+    onEmailChange: (String) -> Unit = {},
+    onGenderChange: (String) -> Unit = {},
+    onPhoneNumberChange: (String) -> Unit = {},
     onCountryClick: () -> Unit = {}
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         CommonTextField(
-            value = "",
-            onTextChange = {},
+            value = state.name,
+            onTextChange = onNameChange,
             hint = "이름을 입력해 주세요",
             modifier = Modifier.fillMaxWidth()
         )
 
         CommonTextField(
-            value = "",
-            onTextChange = {},
+            value = state.profileName,
+            onTextChange = onProfileNameChange,
             hint = "프로필 명을 입력해 주세요",
             modifier = Modifier.fillMaxWidth()
         )
 
         CommonTextField(
-            value = "",
-            onTextChange = {},
+            value = state.email,
+            onTextChange = onEmailChange,
             hint = "이메일을 입력해 주세요",
             modifier = Modifier.fillMaxWidth()
         )
 
         CommonTextField(
-            value = "",
-            onTextChange = {},
+            value = state.phoneNumber,
+            onTextChange = onPhoneNumberChange,
             hint = "전화번호를 입력해 주세요",
             leadingIcon = {
                 Row(
@@ -193,7 +249,7 @@ fun ProfileSettingItems(
                     modifier = Modifier.nonRippleClickable(onCountryClick)
                 ) {
                     Image(
-                        painter = painterResource(R.drawable.ic_korea),
+                        painter = painterResource(Country.getCountryImage(state.country)),
                         contentDescription = null,
                         modifier = Modifier.size(24.dp, 17.dp)
                     )
@@ -208,9 +264,10 @@ fun ProfileSettingItems(
             modifier = Modifier.fillMaxWidth()
         )
 
+        // todo 성별 선택 추가하기
         CommonTextField(
-            value = "",
-            onTextChange = {},
+            value = state.gender,
+            onTextChange = onGenderChange,
             hint = "성별을 선택해 주세요",
             trailingIcon = {
                 Image(
@@ -263,36 +320,13 @@ fun CountrySelector(
                 )
                 Spacer(Modifier.height(8.dp))
 
-                CountrySelectorItem(
-                    text = "한국",
-                    imageRes = R.drawable.ic_korea,
-                    isSelect = temp == "한국"
-                ) { temp = "한국" }
-                CountrySelectorItem(
-                    text = "미국",
-                    imageRes = R.drawable.ic_usa,
-                    isSelect = temp == "미국"
-                ) { temp = "미국" }
-                CountrySelectorItem(
-                    text = "인도네시아",
-                    imageRes = R.drawable.ic_india,
-                    isSelect = temp == "인도네시아"
-                ) { temp = "인도네시아" }
-                CountrySelectorItem(
-                    text = "아르헨티나",
-                    imageRes = R.drawable.img_argentina,
-                    isSelect = temp == "아르헨티나"
-                ) { temp = "아르헨티나" }
-                CountrySelectorItem(
-                    text = "이탈리아",
-                    imageRes = R.drawable.ic_italy,
-                    isSelect = temp == "이탈리아"
-                ) { temp = "이탈리아" }
-                CountrySelectorItem(
-                    text = "캐나다",
-                    imageRes = R.drawable.ic_canada,
-                    isSelect = temp == "캐나다"
-                ) { temp = "캐나다" }
+                Country.entries.forEach {
+                    CountrySelectorItem(
+                        text = it.koreaName,
+                        imageRes = it.imageRes,
+                        isSelect = temp == it.koreaName
+                    ) { temp = it.koreaName }
+                }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     CommonRoundedButton(
@@ -328,7 +362,8 @@ fun CountrySelectorItem(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .background(
                 if (isSelect) Chapter1MainColor.copy(alpha = 0.1f) else Chapter1Background,
                 RoundedCornerShape(16.dp)
@@ -356,7 +391,9 @@ fun CountrySelectorItem(
                 lineHeight = 20.sp,
                 letterSpacing = (-0.025).em
             ),
-            modifier = Modifier.weight(1f).padding(horizontal = 12.dp)
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 12.dp)
         )
 
         if (isSelect) {

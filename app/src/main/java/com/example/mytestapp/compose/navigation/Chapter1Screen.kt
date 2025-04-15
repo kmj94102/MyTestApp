@@ -7,6 +7,7 @@ import com.example.mytestapp.compose.ui.chapter1.IntroScreen
 import com.example.mytestapp.compose.ui.chapter1.login.LoginScreen
 import com.example.mytestapp.compose.ui.chapter1.login.email.EmailLoginScreen
 import com.example.mytestapp.compose.ui.chapter1.setting.interest.InterestScreen
+import com.example.mytestapp.compose.ui.chapter1.setting.profile.ProfileSettingCompleteScreen
 import com.example.mytestapp.compose.ui.chapter1.setting.profile.ProfileSettingScreen
 import com.example.mytestapp.compose.ui.chapter1.signup.SignUpScreen
 import kotlinx.serialization.Serializable
@@ -35,6 +36,10 @@ fun NavGraphBuilder.chapter1Graph(navHostController: NavHostController) {
     composable<Chapter1Screen.Profile> {
         ProfileSettingScreen(navHostController)
     }
+
+    composable<Chapter1Screen.ProfileComplete> {
+        ProfileSettingCompleteScreen(navHostController)
+    }
 }
 
 sealed interface Chapter1Screen {
@@ -59,5 +64,16 @@ sealed interface Chapter1Screen {
     data class Profile(
         val uid: Int
     ): Chapter1Screen
+
+    @Serializable
+    data class ProfileComplete(
+        val uid: Int
+    ): Chapter1Screen
+
+    @Serializable
+    data object FindPassword: Chapter1Screen
+
+    @Serializable
+    data object CodeCheck: Chapter1Screen
 
 }

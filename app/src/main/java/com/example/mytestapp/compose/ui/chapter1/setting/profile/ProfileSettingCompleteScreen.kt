@@ -22,8 +22,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.example.mytestapp.R
 import com.example.mytestapp.compose.PreviewContainer
+import com.example.mytestapp.compose.navigation.Chapter1Screen
 import com.example.mytestapp.compose.theme.Chapter1Black
 import com.example.mytestapp.compose.theme.Chapter1TextGray
 import com.example.mytestapp.compose.theme.pretendard
@@ -31,16 +35,29 @@ import com.example.mytestapp.compose.ui.chapter1.custom.Chapter1GNB
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
 
 @Composable
-fun ProfileSettingCompleteScreen() {
+fun ProfileSettingCompleteScreen(
+    navHostController: NavHostController? = null,
+    viewModel: ProfileSettingCompleteViewModel = hiltViewModel()
+) {
+    val userInfo = viewModel.userInfo.collectAsStateWithLifecycle()
+    val goToLogin: () -> Unit = {
+        navHostController?.navigate(Chapter1Screen.Login) {
+            popUpTo(Chapter1Screen.Login) {
+                inclusive = true
+            }
+            launchSingleTop = true
+        }
+    }
+
     Column(modifier = Modifier.padding(horizontal = 32.dp)) {
         Chapter1GNB(
             title = "설정 완료",
-            onBackClick = {},
+            onBackClick = goToLogin,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(127.dp))
 
-        ProfileSettingCompleteItem()
+        ProfileSettingCompleteItem(userInfo.value?.name)
         Spacer(Modifier.weight(1f))
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp))  {
@@ -48,21 +65,25 @@ fun ProfileSettingCompleteScreen() {
                 text = "다음에",
                 backgroundColor = Chapter1Black,
                 textColor = Chapter1TextGray,
-                modifier = Modifier.weight(1f)
-            ) { }
+                modifier = Modifier.weight(1f),
+                onClick = goToLogin
+            )
 
             CommonRoundedButton(
                 text = "투자 시작",
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            ) { }
+                    .weight(1f)
+                    .padding(bottom = 16.dp),
+                onClick = goToLogin
+            )
         }
     }
 }
 
 @Composable
-fun ProfileSettingCompleteItem() {
+fun ProfileSettingCompleteItem(
+    name: String? = ""
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -90,7 +111,7 @@ fun ProfileSettingCompleteItem() {
         Spacer(Modifier.height(16.dp))
 
         Text(
-            "___님은 부자가 되실 겁니다.\n현명한 투자로 미래를 보장 받으세요",
+            "${name}님은 부자가 되실 겁니다.\n현명한 투자로 미래를 보장 받으세요",
             style = TextStyle(
                 fontFamily = pretendard,
                 fontWeight = FontWeight.Normal,

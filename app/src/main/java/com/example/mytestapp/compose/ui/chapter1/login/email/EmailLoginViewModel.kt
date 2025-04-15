@@ -78,8 +78,8 @@ class EmailLoginViewModel @Inject constructor(
 }
 
 data class EmailLoginState(
-    val email: String = "",
-    val password: String = "",
+    val email: String = "test@naver.com",
+    val password: String = "1234",
     val isPasswordVisible: Boolean = false,
     val isChecked: Boolean = false
 )
