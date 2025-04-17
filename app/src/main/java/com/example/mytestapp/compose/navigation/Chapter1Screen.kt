@@ -4,6 +4,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.example.mytestapp.compose.ui.chapter1.IntroScreen
+import com.example.mytestapp.compose.ui.chapter1.find.code.CodeCheckScreen
+import com.example.mytestapp.compose.ui.chapter1.find.password.FindPasswordScreen
 import com.example.mytestapp.compose.ui.chapter1.login.LoginScreen
 import com.example.mytestapp.compose.ui.chapter1.login.email.EmailLoginScreen
 import com.example.mytestapp.compose.ui.chapter1.setting.interest.InterestScreen
@@ -39,6 +41,14 @@ fun NavGraphBuilder.chapter1Graph(navHostController: NavHostController) {
 
     composable<Chapter1Screen.ProfileComplete> {
         ProfileSettingCompleteScreen(navHostController)
+    }
+
+    composable<Chapter1Screen.FindPassword> {
+        FindPasswordScreen(navHostController)
+    }
+
+    composable<Chapter1Screen.CodeCheck> {
+        CodeCheckScreen(navHostController)
     }
 }
 

@@ -31,8 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.mytestapp.R
 import com.example.mytestapp.compose.PreviewContainer
+import com.example.mytestapp.compose.navigation.Chapter1Screen
 import com.example.mytestapp.compose.theme.Chapter1Background
 import com.example.mytestapp.compose.theme.Chapter1Black
 import com.example.mytestapp.compose.theme.Chapter1MainColor
@@ -43,7 +45,9 @@ import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
 import com.example.mytestapp.compose.unit.nonRippleClickable
 
 @Composable
-fun FindPasswordScreen() {
+fun FindPasswordScreen(
+    navHostController: NavHostController? = null
+) {
     var isMobileSelect by remember { mutableStateOf(true) }
 
     Column(
@@ -51,7 +55,9 @@ fun FindPasswordScreen() {
     ) {
         Chapter1GNB(
             title = "비밀번호 찾기",
-            onBackClick = {},
+            onBackClick = {
+                navHostController?.popBackStack()
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -96,7 +102,9 @@ fun FindPasswordScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
-        ) { }
+        ) {
+            navHostController?.navigate(Chapter1Screen.CodeCheck)
+        }
     }
 }
 

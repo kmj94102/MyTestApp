@@ -80,7 +80,10 @@ fun EmailLoginScreen(
                     onPasswordVisibilityChange = viewModel::onPasswordVisibilityChange,
                     isChecked = viewModel.state.value.isChecked,
                     onCheckedChange = viewModel::onCheckedChange,
-                    onLoginClick = viewModel::onLoginClick
+                    onLoginClick = viewModel::onLoginClick,
+                    onFindPasswordClick = {
+                        navController?.navigate(Chapter1Screen.FindPassword)
+                    }
                 )
             }
             item {
@@ -148,7 +151,8 @@ fun LoginForm(
     onPasswordVisibilityChange: () -> Unit,
     isChecked: Boolean,
     onCheckedChange: () -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    onFindPasswordClick: () -> Unit
 ) {
     Column {
         CommonTextField(
@@ -220,6 +224,7 @@ fun LoginForm(
                     letterSpacing = -(0.025).em
                 ),
                 modifier = Modifier.padding(start = 8.dp)
+                    .nonRippleClickable(onFindPasswordClick)
             )
         } // Row
         CommonRoundedButton(

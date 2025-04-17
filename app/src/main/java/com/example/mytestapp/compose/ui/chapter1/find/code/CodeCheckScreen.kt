@@ -8,13 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -24,26 +21,36 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.example.mytestapp.compose.PreviewContainer
+import com.example.mytestapp.compose.navigation.Chapter1Screen
 import com.example.mytestapp.compose.theme.Chapter1MainColor
 import com.example.mytestapp.compose.theme.Chapter1TextGray
 import com.example.mytestapp.compose.theme.pretendard
 import com.example.mytestapp.compose.ui.chapter1.custom.Chapter1GNB
 import com.example.mytestapp.compose.ui.chapter1.custom.CodeTextFiled
 import com.example.mytestapp.compose.ui.chapter1.custom.CommonRoundedButton
-import kotlinx.coroutines.delay
+import com.example.mytestapp.compose.unit.nonRippleClickable
+import com.example.mytestapp.util.toast
 
 @Composable
-fun CodeCheckScreen() {
-    var code by remember { mutableStateOf("") }
-    var secondsLeft by remember { mutableIntStateOf(120) }
+fun CodeCheckScreen(
+    navHostController: NavHostController? = null,
+    viewModel: CodeCheckViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier.padding(horizontal = 32.dp)
     ) {
         Chapter1GNB(
             title = "코드 입력",
-            onBackClick = {},
+            onBackClick = {
+                navHostController?.popBackStack()
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -89,6 +96,7 @@ fun CodeCheckScreen() {
                 letterSpacing = -(0.025).em
             ),
             modifier = Modifier.padding(top = 12.dp)
+                .nonRippleClickable(viewModel::restartCountdown)
         )
 
         LazyColumn(
@@ -97,13 +105,8 @@ fun CodeCheckScreen() {
         ) {
             item {
                 CodeTextFiled(
-                    text = code,
-                    onChange = {
-                        val value = it.trim().filter { value -> value.isDigit() }
-                        if (value.trim().length <= 4) {
-                            code = value
-                        }
-                    },
+                    text = viewModel.state.value.code,
+                    onChange = viewModel::updateCode,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 40.dp)
@@ -115,7 +118,7 @@ fun CodeCheckScreen() {
                     buildAnnotatedString {
                         append("코드 입력까지 ")
                         withStyle(SpanStyle(color = Chapter1MainColor)) {
-                            append("${secondsLeft}초")
+                            append("${viewModel.state.value.secondsLeft}초")
                         }
                         append(" 남았습니다")
                     },
@@ -136,16 +139,31 @@ fun CodeCheckScreen() {
             text = "입력완료",
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-
-        }
+                .padding(bottom = 16.dp),
+            onClick = viewModel::checkCode
+        )
     }
 
-    LaunchedEffect(secondsLeft) {
-        while (secondsLeft > 0) {
-            delay(1000L)
-            secondsLeft--
+    LaunchedEffect(Unit) {
+        viewModel.startCountdown()
+    }
+
+    LaunchedEffect(uiState) {
+        when(uiState) {
+            is CodeCheckUiState.Success -> {
+                context.toast("코드 확인 완료")
+                navHostController?.navigate(Chapter1Screen.EmailLogin) {
+                    popUpTo(Chapter1Screen.EmailLogin) {
+                        inclusive = true
+                    }
+                }
+            }
+            is CodeCheckUiState.Error -> {
+                context.toast(
+                    (uiState as CodeCheckUiState.Error).message
+                )
+            }
+            else -> {}
         }
     }
 }
