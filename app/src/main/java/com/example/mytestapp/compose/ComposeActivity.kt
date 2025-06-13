@@ -39,6 +39,7 @@ import com.example.mytestapp.compose.ui.chapter1.custom.RoundedButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SmallSocialLoginButton
 import com.example.mytestapp.compose.ui.chapter1.custom.SocialLoginButton
 import com.example.mytestapp.compose.navigation.ComposeNavigationHost
+import com.example.mytestapp.compose.ui.chapter2.Chapter2NavHost
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -54,8 +55,9 @@ class ComposeActivity : ComponentActivity() {
                             .background(Chapter1Background)
                             .padding(innerPadding)
                     ) {
-                        val navHostController = rememberNavController()
-                        ComposeNavigationHost(navHostController)
+//                        val navHostController = rememberNavController()
+//                        ComposeNavigationHost(navHostController)
+                        Chapter2NavHost()
                     }
                 }
             }
