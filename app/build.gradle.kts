@@ -68,6 +68,7 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material3.android)
 
     // Optional - Integration with activities
     implementation(libs.androidx.activity.compose)
